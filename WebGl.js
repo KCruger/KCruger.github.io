@@ -1,3 +1,4 @@
+
  main();
 
  function mouseEnter()
@@ -42,7 +43,7 @@ function keyboradUp()
 
 function keyboradPress()
 {
-    //console.log("keyPress %s", event.code);
+    console.log("keyPress %s", event.code);
 }
 
 var canvas;
@@ -79,7 +80,10 @@ var canvas;
 
  function createProgramID(gl)
  {
-    const strVert = `
+
+    //const  strVert = 
+
+    const strVert =  `
     #if GL_ES
     precision highp float;
     #endif
@@ -95,6 +99,7 @@ var canvas;
         gl_Position = position;
     }
     `;
+    
 
      
     const strFrag = `
@@ -102,15 +107,17 @@ var canvas;
     precision highp float;
     #endif
 
+    uniform vec4 colorSet;
     varying vec4 vColor;
 
     void main()
     {
-        gl_FragColor = vColor;
+        gl_FragColor = vec4(colorSet.rgb, 1.0);
+        //gl_FragColor = vColor;
     }
     `;
 
-    const vertID = createShader(strVert, gl.VERTEX_SHADER, gl);
+    const vertID = createShader( strVert, gl.VERTEX_SHADER, gl);
     const fragID = createShader(strFrag, gl.FRAGMENT_SHADER, gl);
     const id = gl.createProgram();
     gl.attachShader(id, vertID);
@@ -155,10 +162,11 @@ function createVBO(gl)
 {
     const vbo = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+
     var p = [
-       -0.5,0.5, 1,0,0,1,  0.5,0.5,  0,1,0,1,
-       -0.5,-0.5, 0,0,1,1, 0.5,-0.5, 1,1,1,1,
-    ];
+        -0.5, 0.5, 1,0,0,1,  0.5,0.5,  0,1,0,1,
+        -0.5, -0.5, 0,0,1,1, 0.5,-0.5, 1,1,1,1,
+     ];
 
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(p),gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -192,10 +200,10 @@ if(canvas.width != w || canvas.height != h)
 
 var prevTime = 0;
 
- function drawGame(gl, programID,vbo, vbe)
+ function drawGame(gl, programID, vbo, vbe)
  {
-     reShape(gl);
-    //gl.clearColor(Math.random(), Math.random(), Math.random(), Math.random());
+    reShape(gl);
+   
     gl.clearColor(1, 1, 1, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
      //to do
@@ -206,12 +214,15 @@ var prevTime = 0;
     gl.enableVertexAttribArray(positionAttr);
     gl.vertexAttribPointer(positionAttr, 2, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 0);
 
+
     const colorAttr = gl.getAttribLocation(programID, "color");
     gl.enableVertexAttribArray(colorAttr);
-    gl.vertexAttribPointer(colorAttr, 4, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT);
+     gl.vertexAttribPointer(colorAttr, 4, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT);
 
+    const uColor = gl.getUniformLocation(programID, "colorSet");
+    gl.uniform4fv(uColor, [0.5, 0.5, 0.3, 1.0]);
 
-    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0);
+    gl.drawElements(gl.TRIANGLES, 6,gl.UNSIGNED_BYTE, 0);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
